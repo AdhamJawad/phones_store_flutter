@@ -16,12 +16,10 @@ import '../providers/products_providers.dart';
 import '../widgets/category_chip_card.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_card_skeleton.dart';
+import '../widgets/product_card_grid_delegate.dart';
 
 class ProductsPage extends ConsumerStatefulWidget {
-  const ProductsPage({
-    required this.query,
-    super.key,
-  });
+  const ProductsPage({required this.query, super.key});
 
   final ProductsQuery query;
 
@@ -38,7 +36,9 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
   Widget build(BuildContext context) {
     super.build(context);
     final state = ref.watch(productsControllerProvider(widget.query));
-    final controller = ref.read(productsControllerProvider(widget.query).notifier);
+    final controller = ref.read(
+      productsControllerProvider(widget.query).notifier,
+    );
     final categories = ref.watch(catalogCategoriesProvider);
 
     return SafeArea(
@@ -68,16 +68,15 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
                     children: [
                       Text(
                         'products.title'.tr(),
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w900,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'products.subtitle'.tr(),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -161,19 +160,14 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
                 ),
               ),
               if (state.isLoading && !state.hasItems)
-                const SliverPadding(
+                SliverPadding(
                   padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                       _buildLoadingProduct,
                       childCount: 6,
                     ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.68,
-                    ),
+                    gridDelegate: buildProductCardGridDelegate(context),
                   ),
                 )
               else if (state.hasError && !state.hasItems)
@@ -207,28 +201,25 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
                     20,
                   ),
                   sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = state.items[index];
-                        return ProductCard(
-                          product: product,
-                          onTap: () => context.go(AppRoutes.productDetails(product.id)),
-                        );
-                      },
-                      childCount: state.items.length,
-                    ),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.68,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = state.items[index];
+                      final heroTag = 'products-grid-${product.id}-$index';
+                      return ProductCard(
+                        product: product,
+                        heroTag: heroTag,
+                        onTap: () => context.push(
+                          AppRoutes.productDetails(
+                            product.id,
+                            heroTag: heroTag,
+                          ),
+                        ),
+                      );
+                    }, childCount: state.items.length),
+                    gridDelegate: buildProductCardGridDelegate(context),
                   ),
                 ),
                 if (state.isLoadingMore)
-                  const SliverToBoxAdapter(
-                    child: AppPaginatedFooterLoader(),
-                  ),
+                  const SliverToBoxAdapter(child: AppPaginatedFooterLoader()),
               ],
             ],
           ),
@@ -256,10 +247,7 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
 }
 
 class _SourceFilters extends StatelessWidget {
-  const _SourceFilters({
-    required this.selectedSource,
-    required this.onChanged,
-  });
+  const _SourceFilters({required this.selectedSource, required this.onChanged});
 
   final String? selectedSource;
   final ValueChanged<String?> onChanged;
@@ -299,10 +287,7 @@ class _SourceFilters extends StatelessWidget {
 }
 
 class _AllCategoriesChip extends StatelessWidget {
-  const _AllCategoriesChip({
-    required this.selected,
-    required this.onTap,
-  });
+  const _AllCategoriesChip({required this.selected, required this.onTap});
 
   final bool selected;
   final VoidCallback onTap;
@@ -316,6 +301,7 @@ class _AllCategoriesChip extends StatelessWidget {
         slug: 'all',
       ),
       isSelected: selected,
+      showProductsCount: false,
       onTap: onTap,
     );
   }

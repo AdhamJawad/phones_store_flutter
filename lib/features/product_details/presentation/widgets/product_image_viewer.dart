@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/app_network_image.dart';
 
 class ProductImageViewer extends StatefulWidget {
@@ -38,6 +39,7 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        leading: const AppBackButton(),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text('${_currentIndex + 1}/${widget.imageUrls.length}'),

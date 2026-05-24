@@ -36,10 +36,8 @@ final class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutes.splash,
-          pageBuilder: (_, state) => _buildPage(
-            state,
-            const AuthBootstrapPage(),
-          ),
+          pageBuilder: (_, state) =>
+              _buildPage(state, const AuthBootstrapPage()),
         ),
         GoRoute(
           path: AppRoutes.login,
@@ -54,7 +52,8 @@ final class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.home,
-                  pageBuilder: (_, state) => _buildPage(state, const HomePage()),
+                  pageBuilder: (_, state) =>
+                      _buildPage(state, const HomePage()),
                 ),
               ],
             ),
@@ -70,11 +69,12 @@ final class AppRouter {
                     return _buildPage(
                       state,
                       ProductsPage(
-                      query: ProductsQuery(
-                        source: state.uri.queryParameters['source'],
-                        categoryId: categoryId,
-                        categoryName: state.uri.queryParameters['categoryName'],
-                      ),
+                        query: ProductsQuery(
+                          source: state.uri.queryParameters['source'],
+                          categoryId: categoryId,
+                          categoryName:
+                              state.uri.queryParameters['categoryName'],
+                        ),
                       ),
                     );
                   },
@@ -109,7 +109,10 @@ final class AppRouter {
                             const RouteStubPage(title: 'Invalid order'),
                           );
                         }
-                        return _buildPage(state, OrderDetailsPage(orderId: orderId));
+                        return _buildPage(
+                          state,
+                          OrderDetailsPage(orderId: orderId),
+                        );
                       },
                     ),
                   ],
@@ -120,7 +123,8 @@ final class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.wallet,
-                  pageBuilder: (_, state) => _buildPage(state, const WalletPage()),
+                  pageBuilder: (_, state) =>
+                      _buildPage(state, const WalletPage()),
                   routes: [
                     GoRoute(
                       path: 'transactions',
@@ -140,7 +144,8 @@ final class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.profile,
-                  pageBuilder: (_, state) => _buildPage(state, const ProfilePage()),
+                  pageBuilder: (_, state) =>
+                      _buildPage(state, const ProfilePage()),
                   routes: [
                     GoRoute(
                       path: 'edit',
@@ -156,7 +161,9 @@ final class AppRouter {
         GoRoute(
           path: '${AppRoutes.products}/:productId',
           pageBuilder: (_, state) {
-            final productId = int.tryParse(state.pathParameters['productId'] ?? '');
+            final productId = int.tryParse(
+              state.pathParameters['productId'] ?? '',
+            );
             if (productId == null) {
               return _buildPage(
                 state,
@@ -164,7 +171,13 @@ final class AppRouter {
               );
             }
 
-            return _buildPage(state, ProductDetailsPage(productId: productId));
+            return _buildPage(
+              state,
+              ProductDetailsPage(
+                productId: productId,
+                heroTag: state.uri.queryParameters['heroTag'],
+              ),
+            );
           },
         ),
         GoRoute(
@@ -179,7 +192,8 @@ final class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.sellerListings,
-          pageBuilder: (_, state) => _buildPage(state, const SellerListingsPage()),
+          pageBuilder: (_, state) =>
+              _buildPage(state, const SellerListingsPage()),
           routes: [
             GoRoute(
               path: 'create',
@@ -196,7 +210,10 @@ final class AppRouter {
                     const RouteStubPage(title: 'Listing unavailable'),
                   );
                 }
-                return _buildPage(state, ListingFormPage.edit(product: product));
+                return _buildPage(
+                  state,
+                  ListingFormPage.edit(product: product),
+                );
               },
             ),
           ],
@@ -220,7 +237,8 @@ final class AppRouter {
         final path = state.matchedLocation;
         final isAuthRoute = path == AppRoutes.login;
         final isProductsDetailRoute = path.startsWith('${AppRoutes.products}/');
-        final isPublicRoute = path == AppRoutes.splash ||
+        final isPublicRoute =
+            path == AppRoutes.splash ||
             path == AppRoutes.home ||
             path == AppRoutes.products ||
             path == AppRoutes.login ||
@@ -275,10 +293,7 @@ final class AppRouter {
 
         return FadeTransition(
           opacity: fade,
-          child: SlideTransition(
-            position: slide,
-            child: child,
-          ),
+          child: SlideTransition(position: slide, child: child),
         );
       },
     );

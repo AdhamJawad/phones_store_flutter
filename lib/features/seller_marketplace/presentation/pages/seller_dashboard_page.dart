@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_section_header.dart';
@@ -21,6 +22,7 @@ class SellerDashboardPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('seller.dashboard_title'.tr()),
         actions: [
           IconButton(
@@ -40,8 +42,8 @@ class SellerDashboardPage extends ConsumerWidget {
                 child: Text(
                   'seller.dashboard_subtitle'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
@@ -129,9 +131,7 @@ class SellerDashboardPage extends ConsumerWidget {
                               children: [
                                 Text(
                                   'seller.wallet_reference_title'.tr(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 6),
@@ -141,7 +141,9 @@ class SellerDashboardPage extends ConsumerWidget {
                                       .textTheme
                                       .headlineSmall
                                       ?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
                                         fontWeight: FontWeight.w900,
                                       ),
                                 ),
@@ -190,7 +192,8 @@ class SellerDashboardPage extends ConsumerWidget {
                           AppRoutes.sellerListingEdit(listing.id),
                           extra: listing,
                         ),
-                        onTap: () => context.push(AppRoutes.productDetails(listing.id)),
+                        onTap: () =>
+                            context.push(AppRoutes.productDetails(listing.id)),
                       );
                     },
                   ),

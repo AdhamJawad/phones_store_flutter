@@ -15,15 +15,18 @@ class ProductCard extends StatelessWidget {
     required this.onTap,
     super.key,
     this.compact = false,
+    this.heroTag,
   });
 
   final Product product;
   final VoidCallback onTap;
   final bool compact;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.98, end: 1),
@@ -43,28 +46,16 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: compact ? 1.1 : 1.08,
+              aspectRatio: compact ? 1.20 : 1.20,
               child: Stack(
                 children: [
                   Positioned.fill(
                     child: AppNetworkImage(
                       imageUrl: product.primaryImageUrl,
-                      heroTag: 'product-image-${product.id}',
+                      heroTag: heroTag,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(AppRadii.xl),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    top: AppSpacing.sm,
-                    right: AppSpacing.sm,
-                    child: _Badge(
-                      label: product.isInventory
-                          ? 'products.source_inventory'.tr()
-                          : 'products.source_marketplace'.tr(),
-                      color: product.isInventory
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.secondary,
                     ),
                   ),
                   Positioned(
@@ -79,73 +70,56 @@ class ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.displayTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.3,
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDense = constraints.maxHeight < 112;
+                  final horizontalPadding = isDense ? 12.0 : 14.0;
+                  final topPadding = isDense ? 12.0 : 14.0;
+                  final bottomPadding = isDense ? 12.0 : 16.0;
+                  final titleLines = isDense ? 1 : 2;
+
+                  return Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      topPadding,
+                      horizontalPadding,
+                      bottomPadding,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${product.price.toStringAsFixed(0)} ${'products.currency'.tr()}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.place_outlined,
-                        size: 16,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          product.location ??
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.displayTitle,
+                          maxLines: titleLines,
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: textScaler,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '\$ ${product.price.toStringAsFixed(0)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: textScaler,
+                          style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const Spacer(),
+                        _MetaRow(
+                          icon: Icons.place_outlined,
+                          label:
+                              product.location ??
                               product.seller?.location ??
                               'products.location_unknown'.tr(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                          dense: isDense,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person_outline_rounded,
-                        size: 16,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          product.seller?.name ?? 'products.store_account'.tr(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -163,6 +137,39 @@ class ProductCard extends StatelessWidget {
       default:
         return value;
     }
+  }
+}
+
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({required this.icon, required this.label, this.dense = false});
+
+  final IconData icon;
+  final String label;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final iconSize = dense ? 14.0 : 16.0;
+    final gap = dense ? 3.0 : 4.0;
+
+    return Row(
+      children: [
+        Icon(icon, size: iconSize, color: theme.colorScheme.onSurfaceVariant),
+        SizedBox(width: gap),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -189,9 +196,9 @@ class _Badge extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: textColor,
-                fontWeight: FontWeight.w800,
-              ),
+            color: textColor,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );

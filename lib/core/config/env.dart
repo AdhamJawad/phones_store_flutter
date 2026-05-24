@@ -49,7 +49,7 @@ final class AppEnvironment {
 
     final configuredBaseUrl = const String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://10.0.2.2:8000/api/v1',
+      defaultValue: 'https://lightslategray-cattle-936600.hostingersite.com/api/v1',
     );
     baseUrl = configuredBaseUrl.trim().replaceAll(RegExp(r'/$'), '');
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -22,6 +23,7 @@ class SellerListingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('seller.my_listings_title'.tr()),
         actions: [
           IconButton(
@@ -49,8 +51,8 @@ class SellerListingsPage extends ConsumerWidget {
                   child: Text(
                     'seller.my_listings_subtitle'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -96,7 +98,8 @@ class SellerListingsPage extends ConsumerWidget {
                           extra: listing,
                         ),
                         onDelete: () => _confirmDelete(context, ref, listing),
-                        onTap: () => context.push(AppRoutes.productDetails(listing.id)),
+                        onTap: () =>
+                            context.push(AppRoutes.productDetails(listing.id)),
                       );
                     },
                   ),
@@ -151,13 +154,13 @@ class SellerListingsPage extends ConsumerWidget {
 
     switch (result) {
       case Success():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('seller.delete_success'.tr())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('seller.delete_success'.tr())));
       case Error(:final failure):
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
     }
   }
 }

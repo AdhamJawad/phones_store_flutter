@@ -14,55 +14,63 @@ class ProductCardSkeleton extends StatelessWidget {
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(AppRadii.xl),
       child: AppSkeleton(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppSkeletonBox(
-              height: 170,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppRadii.xl),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  AppSkeletonBox(
-                    height: 16,
-                    width: double.infinity,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppRadii.pill),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final imageHeight = constraints.maxWidth / 1.16;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppSkeletonBox(
+                  height: imageHeight,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppRadii.xl),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        AppSkeletonBox(
+                          height: 15,
+                          width: double.infinity,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(AppRadii.pill),
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.xs),
+                        AppSkeletonBox(
+                          height: 15,
+                          width: 110,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(AppRadii.pill),
+                          ),
+                        ),
+                        Spacer(),
+                        AppSkeletonBox(
+                          height: 15,
+                          width: 88,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(AppRadii.pill),
+                          ),
+                        ),
+                        Spacer(),
+                        AppSkeletonBox(
+                          height: 12,
+                          width: 120,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(AppRadii.pill),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: AppSpacing.xs),
-                  AppSkeletonBox(
-                    height: 16,
-                    width: 140,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppRadii.pill),
-                    ),
-                  ),
-                  SizedBox(height: 14),
-                  AppSkeletonBox(
-                    height: 12,
-                    width: 120,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppRadii.pill),
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  AppSkeletonBox(
-                    height: 12,
-                    width: 90,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppRadii.pill),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

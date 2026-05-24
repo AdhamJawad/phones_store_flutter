@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_paginated_footer_loader.dart';
 import '../providers/wallet_providers.dart';
@@ -17,7 +18,10 @@ class WalletTransactionsPage extends ConsumerWidget {
     final controller = ref.read(walletTransactionsControllerProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: Text('wallet.transactions_title'.tr())),
+      appBar: AppBar(
+        leading: const AppBackButton(),
+        title: Text('wallet.transactions_title'.tr()),
+      ),
       body: RefreshIndicator(
         onRefresh: controller.refresh,
         child: NotificationListener<ScrollEndNotification>(
@@ -66,9 +70,7 @@ class WalletTransactionsPage extends ConsumerWidget {
                   ),
                 ),
                 if (state.isLoadingMore)
-                  const SliverToBoxAdapter(
-                    child: AppPaginatedFooterLoader(),
-                  ),
+                  const SliverToBoxAdapter(child: AppPaginatedFooterLoader()),
               ],
             ],
           ),

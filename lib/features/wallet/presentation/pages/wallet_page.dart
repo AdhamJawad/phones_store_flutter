@@ -40,8 +40,8 @@ class WalletPage extends ConsumerWidget {
                 child: Text(
                   'wallet.title'.tr(),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),
@@ -56,8 +56,8 @@ class WalletPage extends ConsumerWidget {
                 child: Text(
                   'wallet.subtitle'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
@@ -110,7 +110,7 @@ class WalletPage extends ConsumerWidget {
                 child: AppSectionHeader(
                   title: 'wallet.recent_transactions_title'.tr(),
                   actionLabel: 'wallet.view_all'.tr(),
-                  onAction: () => context.go(AppRoutes.walletTransactions),
+                  onAction: () => context.push(AppRoutes.walletTransactions),
                 ),
               ),
               if (state.dashboard!.recentTransactions.isEmpty)
@@ -142,7 +142,8 @@ class WalletPage extends ConsumerWidget {
                 child: AppSectionHeader(
                   title: 'wallet.recent_recharges_title'.tr(),
                   actionLabel: 'wallet.view_all'.tr(),
-                  onAction: () => context.go(AppRoutes.walletRechargeRequests),
+                  onAction: () =>
+                      context.push(AppRoutes.walletRechargeRequests),
                 ),
               ),
               if (state.dashboard!.recentRechargeRequests.isEmpty)

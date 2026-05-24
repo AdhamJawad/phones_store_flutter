@@ -13,6 +13,7 @@ import '../../../../presentation/theme/app_spacing.dart';
 import '../../../products/presentation/widgets/category_chip_card.dart';
 import '../../../products/presentation/widgets/product_card.dart';
 import '../../../products/presentation/widgets/product_card_skeleton.dart';
+import '../../../products/presentation/widgets/product_card_grid_delegate.dart';
 import '../providers/home_providers.dart';
 import '../widgets/device_request_card.dart';
 
@@ -46,19 +47,14 @@ class _HomePageState extends ConsumerState<HomePage>
               ),
             ),
             if (state.isLoading && !state.hasData)
-              const SliverPadding(
+              SliverPadding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     _buildLoadingProduct,
                     childCount: 4,
                   ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.68,
-                  ),
+                  gridDelegate: buildProductCardGridDelegate(context),
                 ),
               )
             else if (state.hasError && !state.hasData)
@@ -134,22 +130,18 @@ class _HomePageState extends ConsumerState<HomePage>
                   16,
                 ),
                 sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final product = state.feed!.featuredProducts[index];
-                      return ProductCard(
-                        product: product,
-                        onTap: () => context.go(AppRoutes.productDetails(product.id)),
-                      );
-                    },
-                    childCount: state.feed!.featuredProducts.length,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.68,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final product = state.feed!.featuredProducts[index];
+                    final heroTag = 'home-featured-${product.id}-$index';
+                    return ProductCard(
+                      product: product,
+                      heroTag: heroTag,
+                      onTap: () => context.push(
+                        AppRoutes.productDetails(product.id, heroTag: heroTag),
+                      ),
+                    );
+                  }, childCount: state.feed!.featuredProducts.length),
+                  gridDelegate: buildProductCardGridDelegate(context),
                 ),
               ),
               SliverToBoxAdapter(
@@ -157,7 +149,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   title: 'home.device_requests_title'.tr(),
                   subtitle: 'home.device_requests_subtitle'.tr(),
                   actionLabel: 'home.show_all'.tr(),
-                  onAction: () => context.go(AppRoutes.deviceRequests),
+                  onAction: () => context.push(AppRoutes.deviceRequests),
                 ),
               ),
               if (state.feed!.deviceRequests.isEmpty)
@@ -199,9 +191,7 @@ class _HomePageState extends ConsumerState<HomePage>
 }
 
 class _HomeHero extends StatelessWidget {
-  const _HomeHero({
-    required this.onBrowseProducts,
-  });
+  const _HomeHero({required this.onBrowseProducts});
 
   final VoidCallback onBrowseProducts;
 
@@ -218,7 +208,7 @@ class _HomeHero extends StatelessWidget {
       ),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(30),
           gradient: AppBranding.primaryHeroGradient,
           boxShadow: [
             BoxShadow(

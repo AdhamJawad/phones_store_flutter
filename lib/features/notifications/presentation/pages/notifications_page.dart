@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -22,6 +23,7 @@ class NotificationsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('notifications.title'.tr()),
         actions: [
           TextButton(
@@ -114,8 +116,9 @@ class NotificationsPage extends ConsumerWidget {
   }
 
   Future<void> _markAll(BuildContext context, WidgetRef ref) async {
-    final result =
-        await ref.read(notificationsControllerProvider.notifier).markAllAsRead();
+    final result = await ref
+        .read(notificationsControllerProvider.notifier)
+        .markAllAsRead();
     if (!context.mounted) {
       return;
     }
@@ -126,9 +129,9 @@ class NotificationsPage extends ConsumerWidget {
           SnackBar(content: Text('notifications.mark_all_success'.tr())),
         );
       case Error(:final failure):
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
     }
   }
 
@@ -137,16 +140,17 @@ class NotificationsPage extends ConsumerWidget {
     WidgetRef ref,
     AppNotificationItem item,
   ) async {
-    final result =
-        await ref.read(notificationsControllerProvider.notifier).markAsRead(item.id);
+    final result = await ref
+        .read(notificationsControllerProvider.notifier)
+        .markAsRead(item.id);
     if (!context.mounted) {
       return;
     }
 
     if (result case Error(:final failure)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failure.message)));
     }
   }
 

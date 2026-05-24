@@ -44,9 +44,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
     super.initState();
     final initialMethod = widget.initialPaymentMethods.first;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(createOrderControllerProvider.notifier).setPaymentMethod(
-            initialMethod,
-          );
+      ref
+          .read(createOrderControllerProvider.notifier)
+          .setPaymentMethod(initialMethod);
     });
   }
 
@@ -102,8 +102,8 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                       ? 'orders.checkout_inventory_title'.tr()
                       : 'orders.checkout_marketplace_title'.tr(),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -111,8 +111,8 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                       ? 'orders.checkout_inventory_subtitle'.tr()
                       : 'orders.checkout_marketplace_subtitle'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 OrderSummaryCard(
@@ -129,8 +129,8 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                 Text(
                   'orders.payment_method_title'.tr(),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 PaymentMethodSelector(
@@ -138,7 +138,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                   selectedMethod: state.paymentMethod,
                   onChanged: controller.setPaymentMethod,
                 ),
-                if (widget.initialPaymentMethods.contains(OrderPaymentMethod.wallet)) ...[
+                if (widget.initialPaymentMethods.contains(
+                  OrderPaymentMethod.wallet,
+                )) ...[
                   const SizedBox(height: 12),
                   WalletPaymentNotice(
                     walletSummary: walletSummary,
@@ -151,9 +153,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                   Text(
                     'orders.wallet_insufficient_title'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
                 if (state.hasError) ...[
@@ -161,9 +163,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
                   Text(
                     state.errorMessage!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 14),
@@ -197,7 +199,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
     final walletSummary = ref.read(walletSummaryProvider).valueOrNull;
     final totalPrice =
         widget.product.price + (widget.selectedVariant?.priceModifier ?? 0);
-    final selectedMethod = ref.read(createOrderControllerProvider).paymentMethod;
+    final selectedMethod = ref
+        .read(createOrderControllerProvider)
+        .paymentMethod;
     if (selectedMethod == OrderPaymentMethod.wallet &&
         walletSummary != null &&
         walletSummary.balance < totalPrice) {
@@ -207,7 +211,9 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
       return;
     }
 
-    final result = await ref.read(createOrderControllerProvider.notifier).submit(
+    final result = await ref
+        .read(createOrderControllerProvider.notifier)
+        .submit(
           CreateOrderInput(
             productId: widget.product.id,
             variantId: widget.selectedVariant?.id,
@@ -223,7 +229,7 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
     switch (result) {
       case Success<Order>(:final data):
         Navigator.of(context).pop();
-        context.go(AppRoutes.orderDetails(data.id));
+        context.push(AppRoutes.orderDetails(data.id));
       case Error<Order>():
         break;
     }

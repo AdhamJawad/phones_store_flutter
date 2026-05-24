@@ -8,11 +8,13 @@ class CategoryChipCard extends StatelessWidget {
     required this.onTap,
     super.key,
     this.isSelected = false,
+    this.showProductsCount = true,
   });
 
   final Category category;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool showProductsCount;
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +54,17 @@ class CategoryChipCard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              '${category.productsCount}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: isSelected
-                    ? Colors.white70
-                    : theme.colorScheme.onSurfaceVariant,
+            if (showProductsCount) ...[
+              const SizedBox(height: 4),
+              Text(
+                '${category.productsCount}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: isSelected
+                      ? Colors.white70
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

@@ -38,8 +38,12 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
   @override
   void didUpdateWidget(covariant ProductImageGallery oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final currentPage = _pageController.hasClients
+        ? _pageController.page?.round()
+        : null;
     if (oldWidget.selectedIndex != widget.selectedIndex &&
-        _pageController.hasClients) {
+        _pageController.hasClients &&
+        currentPage != widget.selectedIndex) {
       _pageController.animateToPage(
         widget.selectedIndex,
         duration: AppMotion.medium,
@@ -63,10 +67,7 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
           padding: EdgeInsets.zero,
           borderRadius: BorderRadius.circular(AppRadii.hero),
           child: const Center(
-            child: Icon(
-              Icons.photo_camera_back_outlined,
-              size: 42,
-            ),
+            child: Icon(Icons.photo_camera_back_outlined, size: 42),
           ),
         ),
       );
@@ -100,34 +101,33 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
                     );
                   },
                 ),
-                Positioned(
-                  left: AppSpacing.md,
-                  bottom: AppSpacing.md,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        '${widget.selectedIndex + 1}/${widget.imageUrls.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
         ),
         if (widget.imageUrls.length > 1) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List<Widget>.generate(widget.imageUrls.length, (index) {
+              final selected = index == widget.selectedIndex;
+              return AnimatedContainer(
+                duration: AppMotion.fast,
+                curve: AppMotion.emphasized,
+                width: selected ? 20 : 8,
+                height: 8,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              );
+            }),
+          ),
           const SizedBox(height: 14),
           SizedBox(
             height: 78,
@@ -136,7 +136,15 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
               itemBuilder: (context, index) {
                 final selected = index == widget.selectedIndex;
                 return InkWell(
-                  onTap: () => widget.onImageChanged(index),
+                  onTap: () {
+                    if (_pageController.hasClients) {
+                      _pageController.animateToPage(
+                        index,
+                        duration: AppMotion.medium,
+                        curve: AppMotion.emphasized,
+                      );
+                    }
+                  },
                   borderRadius: BorderRadius.circular(AppRadii.sm),
                   child: AnimatedContainer(
                     duration: AppMotion.fast,

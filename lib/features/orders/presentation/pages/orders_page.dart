@@ -14,16 +14,10 @@ import '../providers/orders_providers.dart';
 import '../widgets/approval_action_bar.dart';
 import '../widgets/order_card.dart';
 
-enum OrdersTab {
-  buyer,
-  sales,
-}
+enum OrdersTab { buyer, sales }
 
 class OrdersPage extends ConsumerStatefulWidget {
-  const OrdersPage({
-    required this.initialTab,
-    super.key,
-  });
+  const OrdersPage({required this.initialTab, super.key});
 
   final OrdersTab initialTab;
 
@@ -61,7 +55,9 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     final salesState = ref.watch(salesOrdersControllerProvider);
     final salesController = ref.read(salesOrdersControllerProvider.notifier);
 
-    final activeState = _currentTab == OrdersTab.buyer ? buyerState : salesState;
+    final activeState = _currentTab == OrdersTab.buyer
+        ? buyerState
+        : salesState;
     final onRefresh = _currentTab == OrdersTab.buyer
         ? buyerController.refresh
         : salesController.refresh;
@@ -90,8 +86,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                   child: Text(
                     'orders.title'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                        ),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -101,8 +97,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                   child: Text(
                     'orders.subtitle'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -195,7 +191,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                       final order = activeState.items[index];
                       return OrderCard(
                         order: order,
-                        onTap: () => context.go(AppRoutes.orderDetails(order.id)),
+                        onTap: () =>
+                            context.push(AppRoutes.orderDetails(order.id)),
                         trailing: _currentTab == OrdersTab.sales
                             ? _buildSalesActions(
                                 context,
@@ -208,9 +205,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                   ),
                 ),
                 if (activeState.isLoadingMore)
-                  const SliverToBoxAdapter(
-                    child: AppPaginatedFooterLoader(),
-                  ),
+                  const SliverToBoxAdapter(child: AppPaginatedFooterLoader()),
               ],
             ],
           ),
@@ -304,9 +299,9 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
           SnackBar(content: Text('orders.sales_action_success'.tr())),
         );
       case Error<Order>(:final failure):
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
     }
   }
 }

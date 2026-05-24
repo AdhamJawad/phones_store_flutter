@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_section_header.dart';
@@ -30,17 +31,17 @@ import '../widgets/product_sticky_cta_bar.dart';
 import '../widgets/product_variant_selector.dart';
 
 class ProductDetailsPage extends ConsumerWidget {
-  const ProductDetailsPage({
-    required this.productId,
-    super.key,
-  });
+  const ProductDetailsPage({required this.productId, super.key, this.heroTag});
 
   final int productId;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(productDetailsControllerProvider(productId));
-    final controller = ref.read(productDetailsControllerProvider(productId).notifier);
+    final controller = ref.read(
+      productDetailsControllerProvider(productId).notifier,
+    );
     final authState = ref.watch(authControllerProvider);
 
     final product = state.product;
@@ -52,7 +53,7 @@ class ProductDetailsPage extends ConsumerWidget {
 
     if (state.hasError && product == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(leading: const AppBackButton()),
         body: AppErrorState(
           title: 'product_details.error_title'.tr(),
           message: state.errorMessage!,
@@ -64,7 +65,7 @@ class ProductDetailsPage extends ConsumerWidget {
 
     if (product == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(leading: const AppBackButton()),
         body: AppEmptyState(
           title: 'product_details.empty_title'.tr(),
           message: 'product_details.empty_message'.tr(),
@@ -77,11 +78,14 @@ class ProductDetailsPage extends ConsumerWidget {
       selectedVariantId: state.selectedVariantId,
     );
 
-    final effectivePrice = product.price + (selectedVariant?.priceModifier ?? 0);
+    final effectivePrice =
+        product.price + (selectedVariant?.priceModifier ?? 0);
     final ctaConfig = state.ctaConfig!;
     final isSelfProduct =
-        authState.session?.user.id == product.seller?.id && authState.isAuthenticated;
-    final canSubmitOrder = ctaConfig.enabled &&
+        authState.session?.user.id == product.seller?.id &&
+        authState.isAuthenticated;
+    final canSubmitOrder =
+        ctaConfig.enabled &&
         !isSelfProduct &&
         (!product.isInventory ||
             selectedVariant == null ||
@@ -89,6 +93,7 @@ class ProductDetailsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('product_details.title'.tr()),
       ),
       bottomNavigationBar: ProductStickyCtaBar(
@@ -104,12 +109,12 @@ class ProductDetailsPage extends ConsumerWidget {
         enabled: canSubmitOrder,
         onPressed: canSubmitOrder
             ? () => _handleOrderCta(
-                  context,
-                  ref,
-                  authState: authState,
-                  product: product,
-                  selectedVariant: selectedVariant,
-                )
+                context,
+                ref,
+                authState: authState,
+                product: product,
+                selectedVariant: selectedVariant,
+              )
             : null,
       ),
       body: RefreshIndicator(
@@ -123,7 +128,7 @@ class ProductDetailsPage extends ConsumerWidget {
                 child: ProductImageGallery(
                   imageUrls: galleryUrls,
                   selectedIndex: state.safeSelectedImageIndex,
-                  heroTag: 'product-image-${product.id}',
+                  heroTag: heroTag ?? 'product-image-${product.id}',
                   onImageChanged: controller.selectImage,
                   onPreviewRequested: (index) {
                     Navigator.of(context).push(
@@ -160,7 +165,9 @@ class ProductDetailsPage extends ConsumerWidget {
                           ),
                           ProductDetailsBadge(
                             label: _conditionLabel(product.condition).tr(),
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             textColor: Theme.of(context).colorScheme.onSurface,
                           ),
                           ProductDetailsBadge(
@@ -174,7 +181,8 @@ class ProductDetailsPage extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Text(
                         product.displayTitle,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
                               fontWeight: FontWeight.w900,
                               height: 1.3,
                             ),
@@ -182,7 +190,8 @@ class ProductDetailsPage extends ConsumerWidget {
                       const SizedBox(height: 10),
                       Text(
                         '${effectivePrice.toStringAsFixed(0)} ${'products.currency'.tr()}',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.w900,
                             ),
@@ -197,10 +206,11 @@ class ProductDetailsPage extends ConsumerWidget {
                               product.location ??
                                   product.seller?.location ??
                                   'product_details.location_unknown'.tr(),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                             ),
                           ),
@@ -237,9 +247,8 @@ class ProductDetailsPage extends ConsumerWidget {
                     children: [
                       Text(
                         'product_details.specifications_title'.tr(),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 12),
                       ProductSpecificationRow(
@@ -289,65 +298,65 @@ class ProductDetailsPage extends ConsumerWidget {
                       children: [
                         Text(
                           'product_details.description_title'.tr(),
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w900,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w900),
                         ),
                         if ((product.description ?? '').trim().isNotEmpty) ...[
                           const SizedBox(height: 12),
                           Text(
                             product.description!,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  height: 1.7,
-                                ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(height: 1.7),
                           ),
                         ],
-                        if ((product.conditionNotes ?? '').trim().isNotEmpty) ...[
+                        if ((product.conditionNotes ?? '')
+                            .trim()
+                            .isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(
                             'product_details.condition_notes_title'.tr(),
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             product.conditionNotes!,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  height: 1.7,
-                                ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(height: 1.7),
                           ),
                         ],
                         if ((product.defects ?? '').trim().isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(
                             'product_details.defects_title'.tr(),
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             product.defects!,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  height: 1.7,
-                                ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(height: 1.7),
                           ),
                         ],
-                        if ((product.reasonDisassembly ?? '').trim().isNotEmpty) ...[
+                        if ((product.reasonDisassembly ?? '')
+                            .trim()
+                            .isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(
                             'product_details.reason_disassembly_title'.tr(),
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             product.reasonDisassembly!,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  height: 1.7,
-                                ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(height: 1.7),
                           ),
                         ],
                       ],
@@ -373,9 +382,7 @@ class ProductDetailsPage extends ConsumerWidget {
                 },
               ),
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 120),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 120)),
           ],
         ),
       ),
@@ -481,7 +488,7 @@ class _ProductDetailsLoadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(leading: const AppBackButton()),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.page),
         child: Column(
@@ -490,9 +497,7 @@ class _ProductDetailsLoadingPage extends StatelessWidget {
             AppSkeleton(
               child: AppSkeletonBox(
                 height: 320,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadii.hero),
-                ),
+                borderRadius: BorderRadius.all(Radius.circular(AppRadii.hero)),
               ),
             ),
             SizedBox(height: AppSpacing.md),
@@ -501,20 +506,11 @@ class _ProductDetailsLoadingPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppSkeletonBox(
-                      height: 18,
-                      width: 120,
-                    ),
+                    AppSkeletonBox(height: 18, width: 120),
                     SizedBox(height: AppSpacing.md),
-                    AppSkeletonBox(
-                      height: 28,
-                      width: double.infinity,
-                    ),
+                    AppSkeletonBox(height: 28, width: double.infinity),
                     SizedBox(height: AppSpacing.sm),
-                    AppSkeletonBox(
-                      height: 20,
-                      width: 160,
-                    ),
+                    AppSkeletonBox(height: 20, width: 160),
                   ],
                 ),
               ),

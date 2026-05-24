@@ -23,13 +23,10 @@ class PhoneMarketApp extends ConsumerWidget {
         supportedLocales: context.supportedLocales,
         localizationsDelegates: context.localizationDelegates,
         theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         routerConfig: router,
         builder: (context, child) {
-          return AppConnectivityBanner(
-            child: child ?? const SizedBox.shrink(),
-          );
+          return AppConnectivityBanner(child: child ?? const SizedBox.shrink());
         },
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -24,6 +25,7 @@ class DeviceRequestsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('device_requests.title'.tr()),
       ),
       body: RefreshIndicator(
@@ -45,8 +47,8 @@ class DeviceRequestsPage extends ConsumerWidget {
                   child: Text(
                     'device_requests.subtitle'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -73,7 +75,8 @@ class DeviceRequestsPage extends ConsumerWidget {
                     message: 'device_requests.empty_message'.tr(),
                     icon: Icons.phone_android_rounded,
                     actionLabel: 'device_requests.create_cta'.tr(),
-                    onAction: () => context.push(AppRoutes.deviceRequestsCreate),
+                    onAction: () =>
+                        context.push(AppRoutes.deviceRequestsCreate),
                   ),
                 )
               else ...[
@@ -96,9 +99,7 @@ class DeviceRequestsPage extends ConsumerWidget {
                   ),
                 ),
                 if (state.isLoadingMore)
-                  const SliverToBoxAdapter(
-                    child: AppPaginatedFooterLoader(),
-                  ),
+                  const SliverToBoxAdapter(child: AppPaginatedFooterLoader()),
               ],
             ],
           ),
@@ -117,8 +118,9 @@ class DeviceRequestsPage extends ConsumerWidget {
     WidgetRef ref,
     DeviceRequest request,
   ) async {
-    final result =
-        await ref.read(deviceRequestsControllerProvider.notifier).sendOffer(request.id);
+    final result = await ref
+        .read(deviceRequestsControllerProvider.notifier)
+        .sendOffer(request.id);
     if (!context.mounted) {
       return;
     }
@@ -129,9 +131,9 @@ class DeviceRequestsPage extends ConsumerWidget {
           SnackBar(content: Text('device_requests.offer_success'.tr())),
         );
       case Error(:final failure):
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
     }
   }
 }

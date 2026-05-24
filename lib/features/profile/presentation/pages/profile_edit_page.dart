@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../domain/entities/update_profile_input.dart';
 import '../providers/profile_providers.dart';
@@ -48,6 +49,7 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('profile.edit_title'.tr()),
       ),
       body: SafeArea(
@@ -80,15 +82,15 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
                     Text(
                       'profile.edit_form_title'.tr(),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'profile.edit_form_subtitle'.tr(),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
@@ -141,9 +143,9 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
                       Text(
                         _displayError(updateState.errorMessage),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -155,7 +157,9 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2.2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.2,
+                                ),
                               )
                             : Text('profile.save_changes'.tr()),
                       ),
@@ -184,7 +188,9 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
       return;
     }
 
-    final result = await ref.read(updateProfileControllerProvider.notifier).submit(
+    final result = await ref
+        .read(updateProfileControllerProvider.notifier)
+        .submit(
           UpdateProfileInput(
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
@@ -197,9 +203,9 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
 
     switch (result) {
       case Success():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('profile.update_success'.tr())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('profile.update_success'.tr())));
         Navigator.of(context).pop();
       case Error():
         break;

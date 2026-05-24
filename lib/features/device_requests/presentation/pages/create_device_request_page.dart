@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../domain/entities/create_device_request_input.dart';
 import '../providers/device_requests_providers.dart';
@@ -35,6 +36,7 @@ class _CreateDeviceRequestPageState
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text('device_requests.create_title'.tr()),
       ),
       body: SafeArea(
@@ -67,8 +69,8 @@ class _CreateDeviceRequestPageState
                     Text(
                       'device_requests.create_subtitle'.tr(),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
@@ -99,9 +101,9 @@ class _CreateDeviceRequestPageState
                       Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -113,7 +115,9 @@ class _CreateDeviceRequestPageState
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2.2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.2,
+                                ),
                               )
                             : Text('device_requests.submit_cta'.tr()),
                       ),

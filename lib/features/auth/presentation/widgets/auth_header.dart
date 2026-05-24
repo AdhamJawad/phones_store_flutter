@@ -1,9 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class AuthHeader extends StatelessWidget {
-  const AuthHeader({
-    super.key,
-  });
+  const AuthHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +26,14 @@ class AuthHeader extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'مرحباً بك مجددًا',
+          'auth.welcome_back'.tr(),
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 12),
         Text(
-          'سجل دخولك للوصول إلى سوق الهواتف وإدارة الطلبات والمحفظة والإشعارات.',
+          'auth.login_subtitle'.tr(),
           style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
             height: 1.6,

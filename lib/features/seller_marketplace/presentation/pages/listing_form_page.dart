@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/errors/result.dart';
 import '../../../products/domain/entities/product.dart';
 import '../../../products/presentation/providers/products_providers.dart';
@@ -12,14 +13,10 @@ import '../widgets/listing_condition_selector.dart';
 import '../widgets/listing_image_upload_grid.dart';
 
 class ListingFormPage extends ConsumerStatefulWidget {
-  const ListingFormPage.create({super.key})
-      : product = null,
-        isEdit = false;
+  const ListingFormPage.create({super.key}) : product = null, isEdit = false;
 
-  const ListingFormPage.edit({
-    required this.product,
-    super.key,
-  }) : isEdit = true;
+  const ListingFormPage.edit({required this.product, super.key})
+    : isEdit = true;
 
   final Product? product;
   final bool isEdit;
@@ -76,7 +73,9 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
   Widget build(BuildContext context) {
     final formState = ref.watch(listingFormControllerProvider);
     final categories = ref.watch(catalogCategoriesProvider);
-    final listingsController = ref.read(sellerListingsControllerProvider.notifier);
+    final listingsController = ref.read(
+      sellerListingsControllerProvider.notifier,
+    );
 
     if (!_seeded && widget.product != null) {
       final product = widget.product!;
@@ -97,6 +96,7 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text(
           widget.isEdit
               ? 'seller.edit_listing_title'.tr()
@@ -137,8 +137,11 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
                           widget.isEdit
                               ? 'seller.edit_listing_subtitle'.tr()
                               : 'seller.create_listing_subtitle'.tr(),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                         ),
                         const SizedBox(height: 18),
@@ -173,8 +176,9 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
                                 _categoryId = value;
                               });
                             },
-                            validator: (value) =>
-                                value == null ? 'seller.category_required'.tr() : null,
+                            validator: (value) => value == null
+                                ? 'seller.category_required'.tr()
+                                : null,
                           ),
                           loading: () => const Center(
                             child: Padding(
@@ -182,21 +186,23 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
                               child: CircularProgressIndicator(),
                             ),
                           ),
-                          error: (_, error) => Text('seller.categories_error'.tr()),
+                          error: (_, error) =>
+                              Text('seller.categories_error'.tr()),
                         ),
                         const SizedBox(height: 14),
                         _TextField(
                           controller: _priceController,
                           label: 'seller.price_label'.tr(),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           validator: _priceValidator,
                         ),
                         const SizedBox(height: 14),
                         Text(
                           'seller.condition_label'.tr(),
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 10),
                         ListingConditionSelector(
@@ -300,9 +306,9 @@ class _ListingFormPageState extends ConsumerState<ListingFormPage> {
                   Text(
                     formState.errorMessage!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 18),
@@ -441,9 +447,7 @@ class _TextField extends StatelessWidget {
       validator: validator,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-      ),
+      decoration: InputDecoration(labelText: label),
     );
   }
 }

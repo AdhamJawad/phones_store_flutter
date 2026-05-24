@@ -13,7 +13,16 @@
   },
   "auth": {
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "welcome_back": "Welcome back",
+    "login_subtitle": "Sign in to access the phone marketplace, manage orders, wallet activity, and notifications.",
+    "email_label": "Email address",
+    "password_label": "Password",
+    "password_hint": "Enter your password",
+    "login_info": "Login is only available for accounts that already exist in the system. New registration is not available in the app at this stage.",
+    "email_required": "Please enter your email address.",
+    "email_invalid": "Please enter a valid email address.",
+    "password_required": "Please enter your password."
   },
   "shell": {
     "tabs": {

@@ -20,7 +20,19 @@ final class AppRoutes {
   static const deviceRequests = '/device-requests';
   static const deviceRequestsCreate = '/device-requests/create';
 
-  static String productDetails(int productId) => '$products/$productId';
+  static String productDetails(int productId, {String? heroTag}) {
+    final path = '$products/$productId';
+    if (heroTag == null || heroTag.isEmpty) {
+      return path;
+    }
+
+    return Uri(
+      path: path,
+      queryParameters: <String, String>{'heroTag': heroTag},
+    ).toString();
+  }
+
   static String orderDetails(int orderId) => '$orders/$orderId';
-  static String sellerListingEdit(int productId) => '$sellerListings/$productId/edit';
+  static String sellerListingEdit(int productId) =>
+      '$sellerListings/$productId/edit';
 }

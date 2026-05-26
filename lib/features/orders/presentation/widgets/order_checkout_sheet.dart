@@ -1,11 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/errors/result.dart';
 import '../../../../core/widgets/app_feedback.dart';
-import '../../../../presentation/routing/app_routes.dart';
 import '../../../wallet/presentation/providers/wallet_providers.dart';
 import '../../../products/domain/entities/product.dart';
 import '../../../products/domain/entities/product_variant.dart';
@@ -228,8 +226,7 @@ class _OrderCheckoutSheetState extends ConsumerState<OrderCheckoutSheet> {
 
     switch (result) {
       case Success<Order>(:final data):
-        Navigator.of(context).pop();
-        context.push(AppRoutes.orderDetails(data.id));
+        Navigator.of(context).pop(data);
       case Error<Order>():
         break;
     }

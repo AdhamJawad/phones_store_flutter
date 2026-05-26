@@ -284,7 +284,9 @@ final class AppRouter {
     Widget child,
   ) {
     return CustomTransitionPage<void>(
-      key: state.pageKey,
+      key: ValueKey<String>(
+        '${state.pageKey.value}::${state.uri}::${identityHashCode(state)}',
+      ),
       child: child,
       transitionDuration: const Duration(milliseconds: 260),
       reverseTransitionDuration: const Duration(milliseconds: 220),

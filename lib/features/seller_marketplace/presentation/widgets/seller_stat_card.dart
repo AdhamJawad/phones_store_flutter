@@ -47,18 +47,23 @@ class SellerStatCard extends StatelessWidget {
               ),
               child: Icon(icon, color: color),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             Text(
               value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 4),
+            const Spacer(),
             Text(
               title,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
+                height: 1.25,
               ),
             ),
           ],

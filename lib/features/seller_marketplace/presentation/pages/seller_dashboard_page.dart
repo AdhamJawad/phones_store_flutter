@@ -180,7 +180,7 @@ class SellerDashboardPage extends ConsumerWidget {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 104),
                   sliver: SliverList.separated(
                     itemCount: state.dashboard!.recentListings.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),

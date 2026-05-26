@@ -14,6 +14,7 @@ import '../../../../presentation/theme/app_radii.dart';
 import '../../../../presentation/theme/app_spacing.dart';
 import '../../../auth/presentation/models/auth_state.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../orders/domain/entities/order.dart';
 import '../../../orders/domain/entities/order_payment_method.dart';
 import '../../../orders/presentation/widgets/order_checkout_sheet.dart';
 import '../../../products/domain/entities/product.dart';
@@ -402,7 +403,7 @@ class ProductDetailsPage extends ConsumerWidget {
       return;
     }
 
-    await showModalBottomSheet<void>(
+    final createdOrder = await showModalBottomSheet<Order>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -414,6 +415,12 @@ class ProductDetailsPage extends ConsumerWidget {
         );
       },
     );
+
+    if (!context.mounted || createdOrder == null) {
+      return;
+    }
+
+    context.push(AppRoutes.orderDetails(createdOrder.id));
   }
 
   String _ctaButtonLabel(ProductCtaType type) {

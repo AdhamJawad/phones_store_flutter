@@ -26,8 +26,9 @@ final class AppTheme {
 
     return base.copyWith(
       textTheme: textTheme,
-      scaffoldBackgroundColor:
-          isDark ? const Color(0xFF08101D) : AppColors.background,
+      scaffoldBackgroundColor: isDark
+          ? const Color(0xFF08101D)
+          : AppColors.background,
       canvasColor: isDark ? const Color(0xFF08101D) : AppColors.background,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
@@ -43,8 +44,7 @@ final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 74,
-        backgroundColor:
-            isDark ? const Color(0xFF0F172A) : colorScheme.surface,
+        backgroundColor: isDark ? const Color(0xFF0F172A) : colorScheme.surface,
         indicatorColor: colorScheme.primary.withValues(alpha: 0.14),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -90,7 +90,7 @@ final class AppTheme {
         style: ElevatedButton.styleFrom(
           elevation: 0,
           shadowColor: Colors.transparent,
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: const Size(0, 52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
@@ -103,7 +103,7 @@ final class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           elevation: 0,
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: const Size(0, 52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
@@ -159,10 +159,7 @@ final class AppTheme {
         color: colorScheme.primary,
         circularTrackColor: colorScheme.primary.withValues(alpha: 0.14),
       ),
-      iconTheme: IconThemeData(
-        size: 22,
-        color: colorScheme.onSurfaceVariant,
-      ),
+      iconTheme: IconThemeData(size: 22, color: colorScheme.onSurfaceVariant),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark
@@ -177,35 +174,23 @@ final class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: BorderSide(
-            color: colorScheme.outlineVariant,
-          ),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: BorderSide(
-            color: colorScheme.outlineVariant,
-          ),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 1.4,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-          ),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1.4,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.4),
         ),
       ),
     );

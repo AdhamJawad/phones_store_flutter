@@ -1,6 +1,7 @@
 final class ApiPaths {
   ApiPaths._();
 
+  static const authRegister = '/auth/register';
   static const authLogin = '/auth/login';
   static const authMe = '/auth/me';
   static const authLogout = '/auth/logout';

@@ -112,17 +112,6 @@ class ProfilePage extends ConsumerWidget {
                   AppSpacing.page,
                   0,
                   AppSpacing.page,
-                  16,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: ProfileDetailsCard(profile: state.profile!),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.page,
-                  0,
-                  AppSpacing.page,
                   24,
                 ),
                 sliver: SliverList.list(

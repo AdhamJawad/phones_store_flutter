@@ -13,36 +13,56 @@ import '../widgets/auth_header.dart';
 import '../widgets/auth_loading_overlay.dart';
 import '../widgets/auth_text_field.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends ConsumerStatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordConfirmationController = TextEditingController();
+  final _nameFocusNode = FocusNode();
   final _emailFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+  final _passwordConfirmationFocusNode = FocusNode();
   bool _obscurePassword = true;
+  bool _obscurePasswordConfirmation = true;
 
   @override
   void initState() {
     super.initState();
-    _emailFocusNode.addListener(() => _handleFieldFocus(_emailFocusNode));
-    _passwordFocusNode.addListener(() => _handleFieldFocus(_passwordFocusNode));
+    for (final focusNode in [
+      _nameFocusNode,
+      _emailFocusNode,
+      _phoneFocusNode,
+      _passwordFocusNode,
+      _passwordConfirmationFocusNode,
+    ]) {
+      focusNode.addListener(() => _handleFieldFocus(focusNode));
+    }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
+    _passwordConfirmationController.dispose();
+    _nameFocusNode.dispose();
     _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
     _passwordFocusNode.dispose();
+    _passwordConfirmationFocusNode.dispose();
     super.dispose();
   }
 
@@ -128,7 +148,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                           CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const AuthHeader(),
+                                        const AuthHeader(
+                                          titleKey: 'auth.create_account',
+                                          subtitleKey: 'auth.register_subtitle',
+                                        ),
                                         const SizedBox(height: 28),
                                         if (authState.hasError) ...[
                                           AuthErrorCard(
@@ -136,6 +159,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                           ),
                                           const SizedBox(height: 20),
                                         ],
+                                        AuthTextField(
+                                          controller: _nameController,
+                                          focusNode: _nameFocusNode,
+                                          label: 'auth.name_label'.tr(),
+                                          hintText: 'auth.name_hint'.tr(),
+                                          keyboardType: TextInputType.name,
+                                          textInputAction: TextInputAction.next,
+                                          autofillHints: const [
+                                            AutofillHints.name,
+                                          ],
+                                          prefixIcon: const Icon(
+                                            Icons.person_outline_rounded,
+                                          ),
+                                          validator: _validateName,
+                                          onSubmitted: (_) {
+                                            _emailFocusNode.requestFocus();
+                                          },
+                                        ),
+                                        const SizedBox(height: 18),
                                         AuthTextField(
                                           controller: _emailController,
                                           focusNode: _emailFocusNode,
@@ -152,6 +194,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                           ),
                                           validator: _validateEmail,
                                           onSubmitted: (_) {
+                                            _phoneFocusNode.requestFocus();
+                                          },
+                                        ),
+                                        const SizedBox(height: 18),
+                                        AuthTextField(
+                                          controller: _phoneController,
+                                          focusNode: _phoneFocusNode,
+                                          label: 'auth.phone_label'.tr(),
+                                          hintText: 'auth.phone_hint'.tr(),
+                                          keyboardType: TextInputType.phone,
+                                          textInputAction: TextInputAction.next,
+                                          autofillHints: const [
+                                            AutofillHints.telephoneNumber,
+                                          ],
+                                          prefixIcon: const Icon(
+                                            Icons.phone_outlined,
+                                          ),
+                                          onSubmitted: (_) {
                                             _passwordFocusNode.requestFocus();
                                           },
                                         ),
@@ -160,12 +220,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                           controller: _passwordController,
                                           focusNode: _passwordFocusNode,
                                           label: 'auth.password_label'.tr(),
-                                          hintText: 'auth.password_hint'.tr(),
+                                          hintText:
+                                              'auth.register_password_hint'
+                                                  .tr(),
                                           keyboardType:
                                               TextInputType.visiblePassword,
-                                          textInputAction: TextInputAction.done,
+                                          textInputAction: TextInputAction.next,
                                           autofillHints: const [
-                                            AutofillHints.password,
+                                            AutofillHints.newPassword,
                                           ],
                                           prefixIcon: const Icon(
                                             Icons.lock_outline_rounded,
@@ -186,11 +248,55 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                                   : Icons.visibility_outlined,
                                             ),
                                           ),
+                                          onSubmitted: (_) {
+                                            _passwordConfirmationFocusNode
+                                                .requestFocus();
+                                          },
+                                        ),
+                                        const SizedBox(height: 18),
+                                        AuthTextField(
+                                          controller:
+                                              _passwordConfirmationController,
+                                          focusNode:
+                                              _passwordConfirmationFocusNode,
+                                          label:
+                                              'auth.password_confirmation_label'
+                                                  .tr(),
+                                          hintText:
+                                              'auth.password_confirmation_hint'
+                                                  .tr(),
+                                          keyboardType:
+                                              TextInputType.visiblePassword,
+                                          textInputAction: TextInputAction.done,
+                                          autofillHints: const [
+                                            AutofillHints.newPassword,
+                                          ],
+                                          prefixIcon: const Icon(
+                                            Icons.verified_user_outlined,
+                                          ),
+                                          obscureText:
+                                              _obscurePasswordConfirmation,
+                                          validator:
+                                              _validatePasswordConfirmation,
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _obscurePasswordConfirmation =
+                                                    !_obscurePasswordConfirmation;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              _obscurePasswordConfirmation
+                                                  ? Icons
+                                                        .visibility_off_outlined
+                                                  : Icons.visibility_outlined,
+                                            ),
+                                          ),
                                           onSubmitted: (_) => _submit(),
                                         ),
                                         const SizedBox(height: 28),
                                         AuthButton(
-                                          label: 'auth.login'.tr(),
+                                          label: 'auth.register'.tr(),
                                           isLoading: authState.isSubmitting,
                                           onPressed: _submit,
                                         ),
@@ -200,25 +306,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                             onPressed: authState.isSubmitting
                                                 ? null
                                                 : () => context.go(
-                                                    AppRoutes.register,
+                                                    AppRoutes.login,
                                                   ),
                                             child: Text(
-                                              'auth.create_account_cta'.tr(),
+                                              'auth.have_account'.tr(),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        Text(
-                                          'auth.login_info'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant,
-                                                height: 1.6,
-                                              ),
                                         ),
                                       ],
                                     ),
@@ -240,6 +333,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
+  String? _validateName(String? value) {
+    if ((value?.trim() ?? '').isEmpty) {
+      return 'auth.name_required'.tr();
+    }
+    return null;
+  }
+
   String? _validateEmail(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) {
@@ -255,10 +355,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   String? _validatePassword(String? value) {
-    if ((value ?? '').isEmpty) {
+    final password = value ?? '';
+    if (password.isEmpty) {
       return 'auth.password_required'.tr();
     }
+    if (password.length < 8) {
+      return 'auth.password_min_length'.tr();
+    }
+    return null;
+  }
 
+  String? _validatePasswordConfirmation(String? value) {
+    if ((value ?? '').isEmpty) {
+      return 'auth.password_confirmation_required'.tr();
+    }
+    if (value != _passwordController.text) {
+      return 'auth.password_confirmation_mismatch'.tr();
+    }
     return null;
   }
 
@@ -272,9 +385,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     await ref
         .read(authControllerProvider.notifier)
-        .login(
+        .register(
+          name: _nameController.text,
           email: _emailController.text,
+          phone: _phoneController.text,
           password: _passwordController.text,
+          passwordConfirmation: _passwordConfirmationController.text,
         );
   }
 

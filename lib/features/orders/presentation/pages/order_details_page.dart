@@ -76,14 +76,15 @@ class OrderDetailsPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    runSpacing: 10,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '#${order.id}',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w900),
-                        ),
+                      Text(
+                        '#${order.id}',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       OrderStatusBadge(status: order.status),
                     ],
@@ -128,6 +129,8 @@ class OrderDetailsPage extends ConsumerWidget {
                         children: [
                           Text(
                             order.product!.displayTitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w900),
                           ),

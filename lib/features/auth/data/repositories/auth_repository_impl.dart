@@ -20,6 +20,27 @@ class AuthRepositoryImpl extends BaseRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource localDataSource;
 
   @override
+  Future<Result<AuthSession>> register({
+    required String name,
+    required String email,
+    String? phone,
+    required String password,
+    required String passwordConfirmation,
+  }) {
+    return guard(() async {
+      final session = await remoteDataSource.register(
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
+      await localDataSource.persist(session);
+      return session.toEntity();
+    });
+  }
+
+  @override
   Future<Result<AuthSession>> login({
     required String email,
     required String password,
@@ -62,8 +83,9 @@ class AuthRepositoryImpl extends BaseRepositoryImpl implements AuthRepository {
         user: user,
       ).toEntity();
     }).then((result) async {
-      if (result case Error<AuthSession?>(:final failure)
-          when failure is UnauthorizedFailure || failure is ForbiddenFailure) {
+      if (result case Error<AuthSession?>(
+        :final failure,
+      ) when failure is UnauthorizedFailure || failure is ForbiddenFailure) {
         await localDataSource.clear();
         return const Success<AuthSession?>(null);
       }
@@ -92,8 +114,9 @@ class AuthRepositoryImpl extends BaseRepositoryImpl implements AuthRepository {
       ).toEntity();
     });
 
-    if (result case Error<AuthSession>(:final failure)
-        when failure is UnauthorizedFailure || failure is ForbiddenFailure) {
+    if (result case Error<AuthSession>(
+      :final failure,
+    ) when failure is UnauthorizedFailure || failure is ForbiddenFailure) {
       await localDataSource.clear();
     }
 

@@ -8,11 +8,46 @@ import '../models/current_user_response_model.dart';
 import '../models/auth_session_model.dart';
 import '../models/login_request_model.dart';
 import '../models/login_response_model.dart';
+import '../models/register_request_model.dart';
 
 class AuthRemoteDataSource {
   AuthRemoteDataSource(this._dio);
 
   final Dio _dio;
+
+  Future<AuthSessionModel> register({
+    required String name,
+    required String email,
+    String? phone,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    final request = RegisterRequestModel(
+      name: name,
+      email: email,
+      phone: phone,
+      password: password,
+      passwordConfirmation: passwordConfirmation,
+    );
+
+    final response = await _dio.post<dynamic>(
+      ApiPaths.authRegister,
+      data: request.toJson(),
+    );
+
+    ApiResponseParser.ensureSuccessStatus(response);
+
+    try {
+      final payload = ApiResponseParser.parseData<Map<String, dynamic>>(
+        response,
+        (json) => json as Map<String, dynamic>,
+      );
+
+      return LoginResponseModel.fromJson(payload).toSessionModel();
+    } catch (_) {
+      throw const UnknownException('Malformed register response.');
+    }
+  }
 
   Future<AuthSessionModel> login({
     required String email,

@@ -17,6 +17,7 @@ import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_use_case.dart';
 import '../../domain/usecases/logout_use_case.dart';
+import '../../domain/usecases/register_use_case.dart';
 import '../../domain/usecases/refresh_current_user_use_case.dart';
 import '../../domain/usecases/restore_session_use_case.dart';
 import '../models/auth_state.dart';
@@ -41,6 +42,10 @@ final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(ref.watch(authRepositoryProvider));
 });
 
+final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
+  return RegisterUseCase(ref.watch(authRepositoryProvider));
+});
+
 final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(ref.watch(authRepositoryProvider));
 });
@@ -49,13 +54,15 @@ final restoreSessionUseCaseProvider = Provider<RestoreSessionUseCase>((ref) {
   return RestoreSessionUseCase(ref.watch(authRepositoryProvider));
 });
 
-final refreshCurrentUserUseCaseProvider =
-    Provider<RefreshCurrentUserUseCase>((ref) {
+final refreshCurrentUserUseCaseProvider = Provider<RefreshCurrentUserUseCase>((
+  ref,
+) {
   return RefreshCurrentUserUseCase(ref.watch(authRepositoryProvider));
 });
 
-final authControllerProvider =
-    NotifierProvider<AuthController, AuthState>(AuthController.new);
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);
 
 final authRouterNotifierProvider = Provider<AuthRouterNotifier>((ref) {
   final notifier = AuthRouterNotifier(ref.read(authControllerProvider));
@@ -71,6 +78,7 @@ class AuthController extends Notifier<AuthState> {
   Future<void>? _restoreFuture;
   Future<Result<AuthSession>>? _refreshFuture;
 
+  RegisterUseCase get _registerUseCase => ref.read(registerUseCaseProvider);
   LoginUseCase get _loginUseCase => ref.read(loginUseCaseProvider);
   LogoutUseCase get _logoutUseCase => ref.read(logoutUseCaseProvider);
   RestoreSessionUseCase get _restoreSessionUseCase =>
@@ -86,6 +94,42 @@ class AuthController extends Notifier<AuthState> {
     }
 
     return const AuthState.restoring();
+  }
+
+  Future<Result<AuthSession>> register({
+    required String name,
+    required String email,
+    String? phone,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    state = AuthState(
+      status: AuthStatus.unauthenticated,
+      session: null,
+      failure: null,
+      errorMessage: null,
+      isSubmitting: true,
+    );
+
+    final result = await _registerUseCase(
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone?.trim(),
+      password: password,
+      passwordConfirmation: passwordConfirmation,
+    );
+
+    switch (result) {
+      case Success<AuthSession>(:final data):
+        state = AuthState.authenticated(data);
+      case Error<AuthSession>(:final failure):
+        state = AuthState.unauthenticated(
+          failure: failure,
+          errorMessage: _mapFailureToMessage(failure),
+        );
+    }
+
+    return result;
   }
 
   Future<Result<AuthSession>> login({
@@ -129,25 +173,28 @@ class AuthController extends Notifier<AuthState> {
     _restoreFuture = _restoreSessionUseCase()
         .timeout(AppConstants.startupTimeout)
         .then((result) {
-      switch (result) {
-        case Success<AuthSession?>(:final data):
-          if (data == null) {
-            state = const AuthState.unauthenticated();
-          } else {
-            state = AuthState.authenticated(data);
+          switch (result) {
+            case Success<AuthSession?>(:final data):
+              if (data == null) {
+                state = const AuthState.unauthenticated();
+              } else {
+                state = AuthState.authenticated(data);
+              }
+            case Error<AuthSession?>(:final failure):
+              state = AuthState.unauthenticated(
+                failure: failure,
+                errorMessage: failure.isExpiredSession
+                    ? null
+                    : _mapFailureToMessage(failure),
+              );
           }
-        case Error<AuthSession?>(:final failure):
-          state = AuthState.unauthenticated(
-            failure: failure,
-            errorMessage:
-                failure.isExpiredSession ? null : _mapFailureToMessage(failure),
-          );
-      }
-    }).catchError((Object error, StackTrace stackTrace) {
-      state = const AuthState.unauthenticated();
-    }).whenComplete(() {
-      _restoreFuture = null;
-    });
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          state = const AuthState.unauthenticated();
+        })
+        .whenComplete(() {
+          _restoreFuture = null;
+        });
 
     return _restoreFuture!;
   }
@@ -235,10 +282,7 @@ class AuthController extends Notifier<AuthState> {
       return;
     }
 
-    state = state.copyWith(
-      clearError: true,
-      clearFailure: true,
-    );
+    state = state.copyWith(clearError: true, clearFailure: true);
   }
 
   void replaceSessionUser(AuthUser user) {
@@ -264,13 +308,15 @@ class AuthController extends Notifier<AuthState> {
     return switch (failure) {
       ValidationFailure() => failure.message,
       UnauthorizedFailure() => 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
-      NetworkFailure() => 'تعذر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مرة أخرى.',
+      NetworkFailure() =>
+        'تعذر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مرة أخرى.',
       ServerFailure() => 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.',
       CacheFailure() => 'تعذر قراءة بيانات الجلسة المحفوظة.',
       ForbiddenFailure() => 'ليس لديك صلاحية لإتمام هذه العملية.',
-      UnknownFailure() => failure.message.isEmpty
-          ? 'حدث خطأ غير متوقع. حاول مرة أخرى.'
-          : failure.message,
+      UnknownFailure() =>
+        failure.message.isEmpty
+            ? 'حدث خطأ غير متوقع. حاول مرة أخرى.'
+            : failure.message,
     };
   }
 }

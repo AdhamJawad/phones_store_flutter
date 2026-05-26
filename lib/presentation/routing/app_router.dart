@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/route_stub_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/widgets/auth_bootstrap_page.dart';
 import '../../features/device_requests/presentation/pages/create_device_request_page.dart';
@@ -42,6 +43,10 @@ final class AppRouter {
         GoRoute(
           path: AppRoutes.login,
           pageBuilder: (_, state) => _buildPage(state, const LoginPage()),
+        ),
+        GoRoute(
+          path: AppRoutes.register,
+          pageBuilder: (_, state) => _buildPage(state, const RegisterPage()),
         ),
         StatefulShellRoute.indexedStack(
           builder: (_, _, navigationShell) {
@@ -235,13 +240,15 @@ final class AppRouter {
         final authState = authRouterNotifier.state;
         final isAuthenticated = authState.isAuthenticated;
         final path = state.matchedLocation;
-        final isAuthRoute = path == AppRoutes.login;
+        final isAuthRoute =
+            path == AppRoutes.login || path == AppRoutes.register;
         final isProductsDetailRoute = path.startsWith('${AppRoutes.products}/');
         final isPublicRoute =
             path == AppRoutes.splash ||
             path == AppRoutes.home ||
             path == AppRoutes.products ||
             path == AppRoutes.login ||
+            path == AppRoutes.register ||
             isProductsDetailRoute;
         final requestedLocation = state.uri.toString();
 

@@ -14,7 +14,6 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/profile_providers.dart';
 import '../widgets/destructive_action_dialog.dart';
 import '../widgets/profile_action_tile.dart';
-import '../widgets/profile_details_card.dart';
 import '../widgets/profile_info_card.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -176,6 +175,19 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => DestructiveActionDialog(
+        title: 'profile.logout_dialog_title'.tr(),
+        message: 'profile.logout_dialog_message'.tr(),
+        confirmLabel: 'profile.logout_confirm'.tr(),
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
     final result = await ref.read(authControllerProvider.notifier).logout();
     if (!context.mounted) {
       return;

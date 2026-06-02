@@ -57,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -284,16 +284,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !focusNode.hasFocus || focusNode.context == null) {
-        return;
-      }
+      Future<void>.delayed(const Duration(milliseconds: 280), () {
+        if (!mounted || !focusNode.hasFocus || focusNode.context == null) {
+          return;
+        }
 
-      Scrollable.ensureVisible(
-        focusNode.context!,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        alignment: 0.30,
-      );
+        Scrollable.ensureVisible(
+          focusNode.context!,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: 0.18,
+        );
+      });
     });
   }
 }

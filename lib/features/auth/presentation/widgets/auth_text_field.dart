@@ -16,6 +16,8 @@ class AuthTextField extends StatelessWidget {
     this.suffixIcon,
     this.autofillHints,
     this.textDirection,
+    this.errorText,
+    this.scrollPadding = const EdgeInsets.fromLTRB(0, 24, 0, 180),
   });
 
   final TextEditingController controller;
@@ -31,6 +33,8 @@ class AuthTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final Iterable<String>? autofillHints;
   final TextDirection? textDirection;
+  final String? errorText;
+  final EdgeInsets scrollPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +48,13 @@ class AuthTextField extends StatelessWidget {
       onFieldSubmitted: onSubmitted,
       autofillHints: autofillHints,
       textDirection: textDirection,
+      scrollPadding: scrollPadding,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        errorText: errorText,
       ),
     );
   }

@@ -13,6 +13,7 @@ class PhoneMarketApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(authSessionSyncProvider);
     final router = ref.watch(appRouterProvider);
 
     return AppLifecycleScope(

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../presentation/routing/app_routes.dart';
 import '../models/auth_state.dart';
 import '../providers/auth_providers.dart';
@@ -35,10 +36,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _passwordConfirmationFocusNode = FocusNode();
   bool _obscurePassword = true;
   bool _obscurePasswordConfirmation = true;
+  String? _emailServerError;
 
   @override
   void initState() {
     super.initState();
+    _emailController.addListener(_clearEmailServerErrorOnChange);
     for (final focusNode in [
       _nameFocusNode,
       _emailFocusNode,
@@ -69,15 +72,24 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final emailServerError = _resolveEmailServerError(authState);
+    final showGeneralError = authState.hasError && emailServerError == null;
 
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (previous?.errorMessage != next.errorMessage && next.hasError) {
         HapticFeedback.mediumImpact();
       }
+
+      final nextEmailServerError = _resolveEmailServerError(next);
+      if (nextEmailServerError != _emailServerError) {
+        setState(() {
+          _emailServerError = nextEmailServerError;
+        });
+      }
     });
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -153,7 +165,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                           subtitleKey: 'auth.register_subtitle',
                                         ),
                                         const SizedBox(height: 28),
-                                        if (authState.hasError) ...[
+                                        if (showGeneralError) ...[
                                           AuthErrorCard(
                                             message: authState.errorMessage!,
                                           ),
@@ -193,6 +205,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                             Icons.mail_outline_rounded,
                                           ),
                                           validator: _validateEmail,
+                                          errorText: emailServerError,
                                           onSubmitted: (_) {
                                             _phoneFocusNode.requestFocus();
                                           },
@@ -341,6 +354,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   String? _validateEmail(String? value) {
+    if (_emailServerError != null) {
+      return null;
+    }
+
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) {
       return 'auth.email_required'.tr();
@@ -377,6 +394,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
+    if (_emailServerError != null) {
+      setState(() {
+        _emailServerError = null;
+      });
+    }
     ref.read(authControllerProvider.notifier).clearError();
 
     if (!_formKey.currentState!.validate()) {
@@ -394,22 +416,53 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         );
   }
 
+  String? _resolveEmailServerError(AuthState authState) {
+    final failure = authState.failure;
+    if (failure is! ValidationFailure) {
+      return null;
+    }
+
+    final emailErrors = failure.errors['email'];
+    if (emailErrors == null || emailErrors.isEmpty) {
+      return null;
+    }
+
+    final firstError = emailErrors.first.toLowerCase();
+    if (firstError.contains('already been taken')) {
+      return 'auth.email_taken'.tr();
+    }
+
+    return emailErrors.first;
+  }
+
+  void _clearEmailServerErrorOnChange() {
+    if (_emailServerError == null) {
+      return;
+    }
+
+    setState(() {
+      _emailServerError = null;
+    });
+  }
+
   void _handleFieldFocus(FocusNode focusNode) {
     if (!focusNode.hasFocus) {
       return;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !focusNode.hasFocus || focusNode.context == null) {
-        return;
-      }
+      Future<void>.delayed(const Duration(milliseconds: 280), () {
+        if (!mounted || !focusNode.hasFocus || focusNode.context == null) {
+          return;
+        }
 
-      Scrollable.ensureVisible(
-        focusNode.context!,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        alignment: 0.30,
-      );
+        Scrollable.ensureVisible(
+          focusNode.context!,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: 0.18,
+        );
+      });
     });
   }
 }

@@ -10,7 +10,6 @@ import '../../../../presentation/routing/app_routes.dart';
 import '../../../../presentation/theme/app_branding.dart';
 import '../../../../presentation/theme/app_radii.dart';
 import '../../../../presentation/theme/app_spacing.dart';
-import '../../../products/presentation/widgets/category_chip_card.dart';
 import '../../../products/presentation/widgets/product_card.dart';
 import '../../../products/presentation/widgets/product_card_skeleton.dart';
 import '../../../products/presentation/widgets/product_card_grid_delegate.dart';
@@ -43,7 +42,7 @@ class _HomePageState extends ConsumerState<HomePage>
           slivers: [
             SliverToBoxAdapter(
               child: _HomeHero(
-                onBrowseProducts: () => context.go(AppRoutes.products),
+                onOpenAiAdvisor: () => context.push(AppRoutes.aiAdvisor),
               ),
             ),
             if (state.isLoading && !state.hasData)
@@ -77,40 +76,17 @@ class _HomePageState extends ConsumerState<HomePage>
               )
             else ...[
               SliverToBoxAdapter(
-                child: AppSectionHeader(
-                  title: 'home.categories_title'.tr(),
-                  subtitle: 'home.categories_subtitle'.tr(),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 94,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.page,
-                      12,
-                      AppSpacing.page,
-                      8,
-                    ),
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      final category = state.feed!.categories[index];
-                      return CategoryChipCard(
-                        category: category,
-                        onTap: () {
-                          final uri = Uri(
-                            path: AppRoutes.products,
-                            queryParameters: <String, String>{
-                              'categoryId': '${category.id}',
-                              'categoryName': category.name,
-                            },
-                          );
-                          context.go(uri.toString());
-                        },
-                      );
-                    },
-                    separatorBuilder: (_, _) => const SizedBox(width: 12),
-                    itemCount: state.feed!.categories.length,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.page,
+                    0,
+                    AppSpacing.page,
+                    12,
+                  ),
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(AppRoutes.deviceCompare),
+                    icon: const Icon(Icons.compare_arrows_rounded),
+                    label: Text('home.devices_cta'.tr()),
                   ),
                 ),
               ),
@@ -118,8 +94,6 @@ class _HomePageState extends ConsumerState<HomePage>
                 child: AppSectionHeader(
                   title: 'home.featured_products_title'.tr(),
                   subtitle: 'home.featured_products_subtitle'.tr(),
-                  actionLabel: 'home.show_all'.tr(),
-                  onAction: () => context.go(AppRoutes.products),
                 ),
               ),
               SliverPadding(
@@ -191,9 +165,9 @@ class _HomePageState extends ConsumerState<HomePage>
 }
 
 class _HomeHero extends StatelessWidget {
-  const _HomeHero({required this.onBrowseProducts});
+  const _HomeHero({required this.onOpenAiAdvisor});
 
-  final VoidCallback onBrowseProducts;
+  final VoidCallback onOpenAiAdvisor;
 
   @override
   Widget build(BuildContext context) {
@@ -242,13 +216,38 @@ class _HomeHero extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.section),
-                FilledButton.tonal(
-                  onPressed: onBrowseProducts,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: theme.colorScheme.primary,
+                Material(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
+                  child: InkWell(
+                    onTap: onOpenAiAdvisor,
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.search_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'home.ai_cta'.tr(),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.92),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Text('home.hero_cta'.tr()),
                 ),
               ],
             ),

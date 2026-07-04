@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/route_stub_page.dart';
+import '../../features/ai_advisor/presentation/pages/ai_advisor_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/widgets/auth_bootstrap_page.dart';
 import '../../features/device_requests/presentation/pages/create_device_request_page.dart';
 import '../../features/device_requests/presentation/pages/device_requests_page.dart';
+import '../../features/device_catalog/presentation/pages/device_details_page.dart';
+import '../../features/device_catalog/presentation/pages/devices_page.dart';
+import '../../features/device_compare/presentation/pages/device_compare_page.dart';
+import '../../features/device_compare/presentation/pages/device_compare_result_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/orders/presentation/pages/order_details_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -186,6 +191,63 @@ final class AppRouter {
           },
         ),
         GoRoute(
+          path: AppRoutes.aiAdvisor,
+          pageBuilder: (_, state) => _buildPage(state, const AiAdvisorPage()),
+        ),
+        GoRoute(
+          path: AppRoutes.devices,
+          pageBuilder: (_, state) => _buildPage(state, const DevicesPage()),
+          routes: [
+            GoRoute(
+              path: 'compare',
+              pageBuilder: (_, state) =>
+                  _buildPage(state, const DeviceComparePage()),
+              routes: [
+                GoRoute(
+                  path: 'result',
+                  pageBuilder: (_, state) {
+                    final extra = state.extra;
+                    final deviceIds = extra is List
+                        ? extra
+                              .whereType<num>()
+                              .map((value) => value.toInt())
+                              .toList(growable: false)
+                        : const <int>[];
+
+                    if (deviceIds.length != 2) {
+                      return _buildPage(
+                        state,
+                        const RouteStubPage(title: 'Comparison unavailable'),
+                      );
+                    }
+
+                    return _buildPage(
+                      state,
+                      DeviceCompareResultPage(deviceIds: deviceIds),
+                    );
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: ':deviceId',
+              pageBuilder: (_, state) {
+                final deviceId = int.tryParse(
+                  state.pathParameters['deviceId'] ?? '',
+                );
+                if (deviceId == null) {
+                  return _buildPage(
+                    state,
+                    const RouteStubPage(title: 'Invalid device'),
+                  );
+                }
+
+                return _buildPage(state, DeviceDetailsPage(deviceId: deviceId));
+              },
+            ),
+          ],
+        ),
+        GoRoute(
           path: AppRoutes.notifications,
           pageBuilder: (_, state) =>
               _buildPage(state, const NotificationsPage()),
@@ -240,16 +302,24 @@ final class AppRouter {
         final authState = authRouterNotifier.state;
         final isAuthenticated = authState.isAuthenticated;
         final path = state.matchedLocation;
+        if (path == AppRoutes.devices) {
+          return AppRoutes.deviceCompare;
+        }
+
         final isAuthRoute =
             path == AppRoutes.login || path == AppRoutes.register;
         final isProductsDetailRoute = path.startsWith('${AppRoutes.products}/');
+        final isDevicesDetailRoute = path.startsWith('${AppRoutes.devices}/');
         final isPublicRoute =
             path == AppRoutes.splash ||
             path == AppRoutes.home ||
             path == AppRoutes.products ||
+            path == AppRoutes.aiAdvisor ||
+            path == AppRoutes.devices ||
             path == AppRoutes.login ||
             path == AppRoutes.register ||
-            isProductsDetailRoute;
+            isProductsDetailRoute ||
+            isDevicesDetailRoute;
         final requestedLocation = state.uri.toString();
 
         if (authState.isRestoring && path != AppRoutes.splash) {

@@ -8,7 +8,7 @@ class CategoryChipCard extends StatelessWidget {
     required this.onTap,
     super.key,
     this.isSelected = false,
-    this.showProductsCount = true,
+    this.showProductsCount = false,
   });
 
   final Category category;
@@ -24,7 +24,7 @@ class CategoryChipCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Ink(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? theme.colorScheme.primary
@@ -45,10 +45,12 @@ class CategoryChipCard extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               category.name,
+              textAlign: TextAlign.center,
               style: theme.textTheme.titleSmall?.copyWith(
                 color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                 fontWeight: FontWeight.w800,
@@ -58,6 +60,7 @@ class CategoryChipCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${category.productsCount}',
+                textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: isSelected
                       ? Colors.white70

@@ -15,6 +15,10 @@ final class AppRoutes {
   static const notifications = '/notifications';
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';
+  static const devices = '/devices';
+  static const deviceCompare = '/devices/compare';
+  static const deviceCompareResult = '/devices/compare/result';
+  static const aiAdvisor = '/ai-advisor';
   static const sellerDashboard = '/seller';
   static const sellerListings = '/seller/listings';
   static const sellerListingCreate = '/seller/listings/create';
@@ -34,6 +38,7 @@ final class AppRoutes {
   }
 
   static String orderDetails(int orderId) => '$orders/$orderId';
+  static String deviceDetails(int deviceId) => '$devices/$deviceId';
   static String sellerListingEdit(int productId) =>
       '$sellerListings/$productId/edit';
 }

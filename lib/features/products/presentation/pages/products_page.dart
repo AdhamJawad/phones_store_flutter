@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_paginated_footer_loader.dart';
-import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_skeleton.dart';
 import '../../../../presentation/routing/app_routes.dart';
 import '../../../../presentation/theme/app_spacing.dart';
@@ -64,19 +63,13 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
                     8,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'products.title'.tr(),
+                        textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'products.subtitle'.tr(),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
                       ),
                     ],
                   ),
@@ -99,23 +92,15 @@ class _ProductsPageState extends ConsumerState<ProductsPage>
                 ),
               ),
               SliverToBoxAdapter(
-                child: AppSectionHeader(
-                  title: 'products.categories_filter_title'.tr(),
-                  subtitle: state.selectedCategoryName == null
-                      ? 'products.categories_filter_subtitle'.tr()
-                      : '${'products.filtered_by'.tr()} ${state.selectedCategoryName}',
-                ),
-              ),
-              SliverToBoxAdapter(
                 child: SizedBox(
-                  height: 94,
+                  height: 76,
                   child: categories.when(
                     data: (items) => ListView.separated(
                       padding: const EdgeInsets.fromLTRB(
                         AppSpacing.page,
-                        12,
-                        AppSpacing.page,
                         8,
+                        AppSpacing.page,
+                        4,
                       ),
                       scrollDirection: Axis.horizontal,
                       itemCount: items.length + 1,
@@ -315,9 +300,9 @@ class _CategoriesSkeleton extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.page,
-        12,
-        AppSpacing.page,
         8,
+        AppSpacing.page,
+        4,
       ),
       scrollDirection: Axis.horizontal,
       itemBuilder: (_, index) => const AppSkeleton(

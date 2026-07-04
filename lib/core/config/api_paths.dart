@@ -10,6 +10,9 @@ final class ApiPaths {
   static const search = '/search';
   static const products = '/products';
   static const categories = '/categories';
+  static const devices = '/devices';
+  static const aiAdvisor = '/ai/advisor';
+  static const compare = '/compare';
 
   static const me = '/me';
   static const meDashboard = '/me/dashboard';

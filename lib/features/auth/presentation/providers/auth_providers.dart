@@ -81,6 +81,8 @@ class AuthController extends Notifier<AuthState> {
   RegisterUseCase get _registerUseCase => ref.read(registerUseCaseProvider);
   LoginUseCase get _loginUseCase => ref.read(loginUseCaseProvider);
   LogoutUseCase get _logoutUseCase => ref.read(logoutUseCaseProvider);
+  AuthLocalDataSource get _authLocalDataSource =>
+      ref.read(authLocalDataSourceProvider);
   RestoreSessionUseCase get _restoreSessionUseCase =>
       ref.read(restoreSessionUseCaseProvider);
   RefreshCurrentUserUseCase get _refreshCurrentUserUseCase =>
@@ -170,24 +172,16 @@ class AuthController extends Notifier<AuthState> {
     }
 
     state = const AuthState.restoring();
-    _restoreFuture = _restoreSessionUseCase()
-        .timeout(AppConstants.startupTimeout)
-        .then((result) {
-          switch (result) {
-            case Success<AuthSession?>(:final data):
-              if (data == null) {
-                state = const AuthState.unauthenticated();
-              } else {
-                state = AuthState.authenticated(data);
-              }
-            case Error<AuthSession?>(:final failure):
-              state = AuthState.unauthenticated(
-                failure: failure,
-                errorMessage: failure.isExpiredSession
-                    ? null
-                    : _mapFailureToMessage(failure),
-              );
+    _restoreFuture = _authLocalDataSource
+        .read()
+        .then((persistedSession) {
+          if (persistedSession == null) {
+            state = const AuthState.unauthenticated();
+            return;
           }
+
+          state = AuthState.authenticated(persistedSession.toEntity());
+          unawaited(_syncRestoredSession());
         })
         .catchError((Object error, StackTrace stackTrace) {
           state = const AuthState.unauthenticated();
@@ -197,6 +191,32 @@ class AuthController extends Notifier<AuthState> {
         });
 
     return _restoreFuture!;
+  }
+
+  Future<void> _syncRestoredSession() async {
+    try {
+      final result = await _restoreSessionUseCase().timeout(
+        AppConstants.startupTimeout,
+      );
+
+      switch (result) {
+        case Success<AuthSession?>(:final data):
+          if (data == null) {
+            state = const AuthState.unauthenticated();
+          } else {
+            state = AuthState.authenticated(data);
+          }
+        case Error<AuthSession?>(:final failure):
+          state = AuthState.unauthenticated(
+            failure: failure,
+            errorMessage: failure.isExpiredSession
+                ? null
+                : _mapFailureToMessage(failure),
+          );
+      }
+    } catch (_) {
+      // Keep the locally restored session if background validation fails.
+    }
   }
 
   Future<Result<AuthSession>> refreshCurrentUser() async {

@@ -8,10 +8,7 @@ import '../theme/app_motion.dart';
 import '../theme/app_radii.dart';
 
 class MainShellPage extends StatefulWidget {
-  const MainShellPage({
-    required this.navigationShell,
-    super.key,
-  });
+  const MainShellPage({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
@@ -21,6 +18,15 @@ class MainShellPage extends StatefulWidget {
 
 class _MainShellPageState extends State<MainShellPage> {
   DateTime? _lastExitAttemptAt;
+
+  void _handleRootBackPress(BuildContext context) {
+    if (widget.navigationShell.currentIndex != 0) {
+      widget.navigationShell.goBranch(0);
+      return;
+    }
+
+    _handleExitAttempt(context);
+  }
 
   void _handleExitAttempt(BuildContext context) {
     final now = DateTime.now();
@@ -53,9 +59,7 @@ class _MainShellPageState extends State<MainShellPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final shouldInterceptExit =
-        defaultTargetPlatform == TargetPlatform.android;
-    final canPopRoute = GoRouter.of(context).canPop();
+    final shouldInterceptExit = defaultTargetPlatform == TargetPlatform.android;
 
     final scaffold = Scaffold(
       body: DecoratedBox(
@@ -99,12 +103,15 @@ class _MainShellPageState extends State<MainShellPage> {
                   HapticFeedback.selectionClick();
                   widget.navigationShell.goBranch(
                     index,
-                    initialLocation: index == widget.navigationShell.currentIndex,
+                    initialLocation:
+                        index == widget.navigationShell.currentIndex,
                   );
                 },
                 animationDuration: AppMotion.medium,
                 backgroundColor: Colors.transparent,
-                indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.14),
+                indicatorColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.14,
+                ),
                 destinations: [
                   NavigationDestination(
                     icon: const Icon(Icons.home_outlined),
@@ -123,7 +130,9 @@ class _MainShellPageState extends State<MainShellPage> {
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.account_balance_wallet_outlined),
-                    selectedIcon: const Icon(Icons.account_balance_wallet_rounded),
+                    selectedIcon: const Icon(
+                      Icons.account_balance_wallet_rounded,
+                    ),
                     label: 'shell.tabs.wallet'.tr(),
                   ),
                   NavigationDestination(
@@ -144,13 +153,13 @@ class _MainShellPageState extends State<MainShellPage> {
     }
 
     return PopScope<Object?>(
-      canPop: canPopRoute,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop || canPopRoute) {
+        if (didPop) {
           return;
         }
 
-        _handleExitAttempt(context);
+        _handleRootBackPress(context);
       },
       child: scaffold,
     );

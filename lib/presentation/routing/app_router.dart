@@ -37,7 +37,7 @@ final class AppRouter {
 
   static GoRouter create(AuthRouterNotifier authRouterNotifier) {
     return GoRouter(
-      initialLocation: AppRoutes.splash,
+      initialLocation: AppRoutes.home,
       refreshListenable: authRouterNotifier,
       routes: [
         GoRoute(

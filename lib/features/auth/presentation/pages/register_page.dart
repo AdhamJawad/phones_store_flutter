@@ -38,6 +38,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscurePasswordConfirmation = true;
   String? _emailServerError;
 
+  void _handleBack() {
+    context.go(AppRoutes.login);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,258 +92,303 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       }
     });
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.06),
-            ],
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-          ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-              final keyboardVisible = keyboardInset > 0;
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
 
-              return AnimatedPadding(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  20,
-                  20,
-                  keyboardVisible ? 20 : 28,
-                ),
-                child: AuthLoadingOverlay(
-                  isVisible: authState.isRestoring,
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight:
-                            constraints.maxHeight - (keyboardVisible ? 40 : 48),
+        _handleBack();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                Theme.of(context).scaffoldBackgroundColor,
+                Theme.of(context).colorScheme.secondary.withValues(alpha: 0.06),
+              ],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+            ),
+          ),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+                final keyboardVisible = keyboardInset > 0;
+
+                return AnimatedPadding(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    20,
+                    20,
+                    keyboardVisible ? 20 : 28,
+                  ),
+                  child: AuthLoadingOverlay(
+                    isVisible: authState.isRestoring,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
                       ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: Align(
-                            alignment: keyboardVisible
-                                ? Alignment.topCenter
-                                : Alignment.center,
-                            child: Card(
-                              elevation: 0,
-                              color: Theme.of(context).colorScheme.surface,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(32),
-                                side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant
-                                      .withValues(alpha: 0.4),
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight:
+                              constraints.maxHeight -
+                              (keyboardVisible ? 40 : 48),
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                  onPressed: _handleBack,
+                                  icon: const BackButtonIcon(),
+                                  tooltip: MaterialLocalizations.of(
+                                    context,
+                                  ).backButtonTooltip,
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(28),
-                                child: Form(
-                                  key: _formKey,
-                                  child: AutofillGroup(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const AuthHeader(
-                                          titleKey: 'auth.create_account',
-                                          subtitleKey: 'auth.register_subtitle',
-                                        ),
-                                        const SizedBox(height: 28),
-                                        if (showGeneralError) ...[
-                                          AuthErrorCard(
-                                            message: authState.errorMessage!,
-                                          ),
-                                          const SizedBox(height: 20),
-                                        ],
-                                        AuthTextField(
-                                          controller: _nameController,
-                                          focusNode: _nameFocusNode,
-                                          label: 'auth.name_label'.tr(),
-                                          hintText: 'auth.name_hint'.tr(),
-                                          keyboardType: TextInputType.name,
-                                          textInputAction: TextInputAction.next,
-                                          autofillHints: const [
-                                            AutofillHints.name,
-                                          ],
-                                          prefixIcon: const Icon(
-                                            Icons.person_outline_rounded,
-                                          ),
-                                          validator: _validateName,
-                                          onSubmitted: (_) {
-                                            _emailFocusNode.requestFocus();
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        AuthTextField(
-                                          controller: _emailController,
-                                          focusNode: _emailFocusNode,
-                                          label: 'auth.email_label'.tr(),
-                                          hintText: 'example@email.com',
-                                          keyboardType:
-                                              TextInputType.emailAddress,
-                                          textInputAction: TextInputAction.next,
-                                          autofillHints: const [
-                                            AutofillHints.email,
-                                          ],
-                                          prefixIcon: const Icon(
-                                            Icons.mail_outline_rounded,
-                                          ),
-                                          validator: _validateEmail,
-                                          errorText: emailServerError,
-                                          onSubmitted: (_) {
-                                            _phoneFocusNode.requestFocus();
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        AuthTextField(
-                                          controller: _phoneController,
-                                          focusNode: _phoneFocusNode,
-                                          label: 'auth.phone_label'.tr(),
-                                          hintText: 'auth.phone_hint'.tr(),
-                                          keyboardType: TextInputType.phone,
-                                          textInputAction: TextInputAction.next,
-                                          autofillHints: const [
-                                            AutofillHints.telephoneNumber,
-                                          ],
-                                          prefixIcon: const Icon(
-                                            Icons.phone_outlined,
-                                          ),
-                                          onSubmitted: (_) {
-                                            _passwordFocusNode.requestFocus();
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        AuthTextField(
-                                          controller: _passwordController,
-                                          focusNode: _passwordFocusNode,
-                                          label: 'auth.password_label'.tr(),
-                                          hintText:
-                                              'auth.register_password_hint'
-                                                  .tr(),
-                                          keyboardType:
-                                              TextInputType.visiblePassword,
-                                          textInputAction: TextInputAction.next,
-                                          autofillHints: const [
-                                            AutofillHints.newPassword,
-                                          ],
-                                          prefixIcon: const Icon(
-                                            Icons.lock_outline_rounded,
-                                          ),
-                                          obscureText: _obscurePassword,
-                                          validator: _validatePassword,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _obscurePassword =
-                                                    !_obscurePassword;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              _obscurePassword
-                                                  ? Icons
-                                                        .visibility_off_outlined
-                                                  : Icons.visibility_outlined,
-                                            ),
-                                          ),
-                                          onSubmitted: (_) {
-                                            _passwordConfirmationFocusNode
-                                                .requestFocus();
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        AuthTextField(
-                                          controller:
-                                              _passwordConfirmationController,
-                                          focusNode:
-                                              _passwordConfirmationFocusNode,
-                                          label:
-                                              'auth.password_confirmation_label'
-                                                  .tr(),
-                                          hintText:
-                                              'auth.password_confirmation_hint'
-                                                  .tr(),
-                                          keyboardType:
-                                              TextInputType.visiblePassword,
-                                          textInputAction: TextInputAction.done,
-                                          autofillHints: const [
-                                            AutofillHints.newPassword,
-                                          ],
-                                          prefixIcon: const Icon(
-                                            Icons.verified_user_outlined,
-                                          ),
-                                          obscureText:
-                                              _obscurePasswordConfirmation,
-                                          validator:
-                                              _validatePasswordConfirmation,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _obscurePasswordConfirmation =
-                                                    !_obscurePasswordConfirmation;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              _obscurePasswordConfirmation
-                                                  ? Icons
-                                                        .visibility_off_outlined
-                                                  : Icons.visibility_outlined,
-                                            ),
-                                          ),
-                                          onSubmitted: (_) => _submit(),
-                                        ),
-                                        const SizedBox(height: 28),
-                                        AuthButton(
-                                          label: 'auth.register'.tr(),
-                                          isLoading: authState.isSubmitting,
-                                          onPressed: _submit,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Center(
-                                          child: TextButton(
-                                            onPressed: authState.isSubmitting
-                                                ? null
-                                                : () => context.go(
-                                                    AppRoutes.login,
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: keyboardVisible
+                                      ? Alignment.topCenter
+                                      : Alignment.center,
+                                  child: Card(
+                                    elevation: 0,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surface,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32),
+                                      side: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant
+                                            .withValues(alpha: 0.4),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(28),
+                                      child: Form(
+                                        key: _formKey,
+                                        child: AutofillGroup(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const AuthHeader(
+                                                titleKey: 'auth.create_account',
+                                                subtitleKey:
+                                                    'auth.register_subtitle',
+                                              ),
+                                              const SizedBox(height: 28),
+                                              if (showGeneralError) ...[
+                                                AuthErrorCard(
+                                                  message:
+                                                      authState.errorMessage!,
+                                                ),
+                                                const SizedBox(height: 20),
+                                              ],
+                                              AuthTextField(
+                                                controller: _nameController,
+                                                focusNode: _nameFocusNode,
+                                                label: 'auth.name_label'.tr(),
+                                                hintText: 'auth.name_hint'.tr(),
+                                                keyboardType:
+                                                    TextInputType.name,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                autofillHints: const [
+                                                  AutofillHints.name,
+                                                ],
+                                                prefixIcon: const Icon(
+                                                  Icons.person_outline_rounded,
+                                                ),
+                                                validator: _validateName,
+                                                onSubmitted: (_) {
+                                                  _emailFocusNode
+                                                      .requestFocus();
+                                                },
+                                              ),
+                                              const SizedBox(height: 18),
+                                              AuthTextField(
+                                                controller: _emailController,
+                                                focusNode: _emailFocusNode,
+                                                label: 'auth.email_label'.tr(),
+                                                hintText: 'example@email.com',
+                                                keyboardType:
+                                                    TextInputType.emailAddress,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                autofillHints: const [
+                                                  AutofillHints.email,
+                                                ],
+                                                prefixIcon: const Icon(
+                                                  Icons.mail_outline_rounded,
+                                                ),
+                                                validator: _validateEmail,
+                                                errorText: emailServerError,
+                                                onSubmitted: (_) {
+                                                  _phoneFocusNode
+                                                      .requestFocus();
+                                                },
+                                              ),
+                                              const SizedBox(height: 18),
+                                              AuthTextField(
+                                                controller: _phoneController,
+                                                focusNode: _phoneFocusNode,
+                                                label: 'auth.phone_label'.tr(),
+                                                hintText: 'auth.phone_hint'
+                                                    .tr(),
+                                                keyboardType:
+                                                    TextInputType.phone,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                autofillHints: const [
+                                                  AutofillHints.telephoneNumber,
+                                                ],
+                                                prefixIcon: const Icon(
+                                                  Icons.phone_outlined,
+                                                ),
+                                                onSubmitted: (_) {
+                                                  _passwordFocusNode
+                                                      .requestFocus();
+                                                },
+                                              ),
+                                              const SizedBox(height: 18),
+                                              AuthTextField(
+                                                controller: _passwordController,
+                                                focusNode: _passwordFocusNode,
+                                                label: 'auth.password_label'
+                                                    .tr(),
+                                                hintText:
+                                                    'auth.register_password_hint'
+                                                        .tr(),
+                                                keyboardType: TextInputType
+                                                    .visiblePassword,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                autofillHints: const [
+                                                  AutofillHints.newPassword,
+                                                ],
+                                                prefixIcon: const Icon(
+                                                  Icons.lock_outline_rounded,
+                                                ),
+                                                obscureText: _obscurePassword,
+                                                validator: _validatePassword,
+                                                suffixIcon: IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _obscurePassword =
+                                                          !_obscurePassword;
+                                                    });
+                                                  },
+                                                  icon: Icon(
+                                                    _obscurePassword
+                                                        ? Icons
+                                                              .visibility_off_outlined
+                                                        : Icons
+                                                              .visibility_outlined,
                                                   ),
-                                            child: Text(
-                                              'auth.have_account'.tr(),
-                                            ),
+                                                ),
+                                                onSubmitted: (_) {
+                                                  _passwordConfirmationFocusNode
+                                                      .requestFocus();
+                                                },
+                                              ),
+                                              const SizedBox(height: 18),
+                                              AuthTextField(
+                                                controller:
+                                                    _passwordConfirmationController,
+                                                focusNode:
+                                                    _passwordConfirmationFocusNode,
+                                                label:
+                                                    'auth.password_confirmation_label'
+                                                        .tr(),
+                                                hintText:
+                                                    'auth.password_confirmation_hint'
+                                                        .tr(),
+                                                keyboardType: TextInputType
+                                                    .visiblePassword,
+                                                textInputAction:
+                                                    TextInputAction.done,
+                                                autofillHints: const [
+                                                  AutofillHints.newPassword,
+                                                ],
+                                                prefixIcon: const Icon(
+                                                  Icons.verified_user_outlined,
+                                                ),
+                                                obscureText:
+                                                    _obscurePasswordConfirmation,
+                                                validator:
+                                                    _validatePasswordConfirmation,
+                                                suffixIcon: IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _obscurePasswordConfirmation =
+                                                          !_obscurePasswordConfirmation;
+                                                    });
+                                                  },
+                                                  icon: Icon(
+                                                    _obscurePasswordConfirmation
+                                                        ? Icons
+                                                              .visibility_off_outlined
+                                                        : Icons
+                                                              .visibility_outlined,
+                                                  ),
+                                                ),
+                                                onSubmitted: (_) => _submit(),
+                                              ),
+                                              const SizedBox(height: 28),
+                                              AuthButton(
+                                                label: 'auth.register'.tr(),
+                                                isLoading:
+                                                    authState.isSubmitting,
+                                                onPressed: _submit,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Center(
+                                                child: TextButton(
+                                                  onPressed:
+                                                      authState.isSubmitting
+                                                      ? null
+                                                      : () => context.go(
+                                                          AppRoutes.login,
+                                                        ),
+                                                  child: Text(
+                                                    'auth.have_account'.tr(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
